@@ -8,44 +8,41 @@
     // instantiate Twilio Rest Client
     $client = new Services_Twilio($AccountSid, $AuthToken);
  
-/*    $header = NULL;
-    $people = array();
-    if (($handle = fopen($filename, 'r')) !== FALSE)
-    {
-        while (($row = fgetcsv($handle, 1000, $delimiter)) !== FALSE)
-        {
-            if(!$header)
-                $header = $row;
-            else
-                $data[] = array_combine($header, $row);
-        }
-        fclose($handle);
-    }*/
+    // create empty array
+    $a=array();
 
-    // array of phone numbers
-    $people = array(
-        "+12156808230" => "Thomas",
-        "+19178213080" => "Cathy",
-    );
- 
-    // loop over all numbers
-    // $number is a phone number above, and 
-    // $name is the name next to it
-    foreach ($people as $number => $name) {
- 
+    // open the csv file, located in the same folder
+    $file = fopen("numbers.csv","r");
+
+    // traverse through each line of file
+    while(! feof($file))
+    {
+        // add every person's data to a
+        array_push($a, fgetcsv($file));
+    }
+    fclose($file);
+
+    $arrlength=count($a);
+    for($x=0;$x<$arrlength;$x++)
+    {
+        $number = $a[$x][0];
+        $name = $a[$x][1];
+
         $sms = $client->account->messages->sendMessage(
  
-        // Step 6: Change the 'From' number below to be a valid Twilio number 
-        // that you've purchased, or the (deprecated) Sandbox number
+            // Twilio account's phone number
             "215-600-2133", 
  
-            // the number we are sending to - Any phone number
+            // number receiving text
             $number,
  
             // the sms body
-            "Hello $name"
+            "Hi $name , your number is $number"
         );
- 
-        // Display a confirmation message on the screen
-        echo "Sent message to $name";
+
+        echo "Sent text to ";
+        echo $name;
+        echo " at ";
+        echo $number;
+        echo "<br>";
     }
