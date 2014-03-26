@@ -1,0 +1,32 @@
+<channel>
+    <title>
+    <link></link>
+    <description></description>
+    <language></language>
+    <lastBuildDate></lastBuildDate>
+    <ttl></ttl>
+    <yweather:location city region country />
+    <yweather:units temperature distance pressure speed />
+    <yweather:wind chill direction speed />
+    <yweather:atmosphere humidity visibility pressure rising />
+    <yweather:astronomy sunrise sunset />
+    <image>
+        <title></title>
+        <width></width>
+        <height></height>
+        <link></link>
+        <url></url>
+    </image>
+    <item>
+        <title></title>
+        <geo:lat></geo:lat>
+        <geo:long></geo:long>
+        <link></link>
+        <pubDate></pubDate>
+        <yweather:condition text code temp date>
+        <description></description>
+        <yweather:forecast day date low high text code />
+        <yweather:forecast day date low high text code />
+        <guid Ispermalink></guid>
+    </item>
+</channel>
