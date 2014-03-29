@@ -1,57 +1,45 @@
 <?php
-    require "Services/Twilio.php";
+
+    // create quiz from csv file
+    $quiz = new SplFileObject("current_quiz.csv");
+    $quiz->setFlags(SplFileObject::READ_CSV);
+    $quiz->setCsvControl(';');
+
+    // retrieve quiz question and date
+    $quiz_question = null;
+    $quiz_ans = null;
+    $quiz_date = null;
+    foreach ($quiz as $v) {
+        list ($q, $a, $d) = $v;
+        $quiz_question = $q;
+        $quiz_ans = $a;
+        $quiz_date = date('mdy', $d);
+    }
  
-    $AccountSid = "ACd36eed02ab4654655342f9f24b3c0dcc";
-    $AuthToken = "67fc6649f3ab8e5827d245b42e938b81";
- 
-    // instantiate Twilio Rest Client
-    $client = new Services_Twilio($AccountSid, $AuthToken);
- 
-    date_default_timezone_set('America/New_York');
+    // get their answer
+    $ans = strtoupper($_REQUEST['Body']);
 
-
-
-    $answer = strtoupper(True);
-
-    $correct_answers = array("TRUE", "FALSE", "T", "F");
-
+    // all the possible valid responses, depending on the quiz file
+    $correct = null;
+    if ($quiz_ans == "T") {
+        $correct = array("T", "TRUE", "TRU", "TURE");
+    }
+    else  {
+        $correct = array("F", "FALSE", "FLSE", "FALS");
+    }
+   
     $reply = null;
-
-    foreach($correct_answers as $v) {
-        if ($answer == $v) {
-            $reply = "Correct! You have earned $10."
-        }
-        else {
-            $reply = "Sorry try again next time."
-        }
+    if (in_array($ans, $correct)) {
+      $reply = "Correct! You have earned $10.";
     }
-
-    $number = 19178213080;
-    $end = strtotime("00:00AM");
-
-    if (time() < $end){
-
-        $sms = $client->account->messages->
-        
-            sendMessage(
-
-            // Twilio account's phone number
-            "215-600-2133", 
- 
-            // number receiving text
-            $number,
- 
-            // QUIZ QUESTION
-            "True of False. Cavities (caries) affect children only, not adults. Text us back with the correct answer before midnight and earn $10."
-            );
-
-
-
-        }
-
-        echo "Sent text to ";
-        echo $number;
-        echo " to ";
-        echo date('d-m-y', $end);
-        echo "</br>";
+    else {
+      $reply = "Sorry that is incorrect. Try again next time.";
     }
+ 
+    // now greet the sender
+    header("content-type: text/xml");
+    echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+?>
+<Response>
+    <Message><?php echo $reply?></Message>
+</Response>
