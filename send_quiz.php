@@ -25,10 +25,6 @@
 
     $arrlength=count($a);
 
-    $answer = True;
-
-    $correct_answers = True;
-
     // cycle through array from csv and send message
     for($x=0;$x<$arrlength;$x++){
 
