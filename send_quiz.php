@@ -9,16 +9,22 @@
  
     date_default_timezone_set('America/New_York');
 
+    // create quiz from csv file
+    $quiz = new SplFileObject("current_quiz.csv");
+    $quiz->setFlags(SplFileObject::READ_CSV);
+    $quiz->setCsvControl(';');
 
-    // create empty array
+    // retrieve quiz question
+    $quiz_question = null;
+    foreach ($quiz as $v) {
+        list ($q, $a, $d) = $v;
+        $quiz_question = $q;
+    }
+
+    // get numbers and end time from .csv file
     $a=array();
-    // open the csv file, located in the same folder
-    $file = fopen("study_numbers.csv","r");
-
-    // traverse through each line of file
-    while(! feof($file))
-    {
-        // add every person's data to a
+    $file = fopen("quiz_numbers.csv","r");
+    while(! feof($file)) {
         array_push($a, fgetcsv($file));
     }
     fclose($file);
@@ -26,51 +32,23 @@
     $arrlength=count($a);
 
     // cycle through array from csv and send message
-    for($x=0;$x<$arrlength;$x++){
-
-        $number = $a[$x][0];
-        $end = strtotime($a[$x][1]);
-
+    foreach($a as $v){
+        $number = $v[0];
+        $end = strtotime($v[1]);
         if (time() < $end){
-
             $sms = $client->account->messages->
-
                 sendMessage(
-
-                // Twilio account's phone number
-                "215-600-2133", 
- 
-                // number receiving text
-                $number,
- 
-                // QUIZ QUESTION
-                "True of False. Cavities (caries) affect children only, not adults. Text us back with the correct answer before midnight and earn $10."
+                    "215-600-2133", 
+                    $number,
+                    $quiz_question
                 );
-
-
         }
 
-        echo "Sent text to ";
+        echo "Sent quiz to ";
         echo $number;
         echo " to ";
         echo date('d-m-y', $end);
+        echo " with question ";
+        echo $quiz_question;
         echo "</br>";
     }
-
-    // $testtime = strtotime("10:40pm");
-
-    // if ($testtime + 100 < time()) {
-    //     echo $testtime + 100;
-    // }
-
-    // echo "</br>";
-    // echo $time_1 + 120;
-    // echo "</br>";
-    // echo $time_1 - 120;
-    // echo "</br>";
-    // echo time();
-
-
-    // if (time() < ($time_1 + 1200) && time() > ($time_1 - 1200)){
-    //     echo "SUCCESS";
-    // }
