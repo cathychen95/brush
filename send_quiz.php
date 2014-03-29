@@ -14,11 +14,13 @@
     $quiz->setFlags(SplFileObject::READ_CSV);
     $quiz->setCsvControl(';');
 
-    // retrieve quiz question
+    // retrieve quiz question and date
     $quiz_question = null;
+    $quiz_date = null;
     foreach ($quiz as $v) {
         list ($q, $a, $d) = $v;
-        $quiz_question = $q;
+        $quiz_question = $q;;
+        $quiz_date = date('Y-m-d', strtotime($d));
     }
 
     // get numbers and end time from .csv file
@@ -35,7 +37,8 @@
     foreach($a as $v){
         $number = $v[0];
         $end = strtotime($v[1]);
-        if (time() < $end){
+
+        if ((time() < $end) && (date('Y-m-d', time()) == $quiz_date)){
             $sms = $client->account->messages->
                 sendMessage(
                     "215-600-2133", 
@@ -50,5 +53,9 @@
         echo date('d-m-y', $end);
         echo " with question ";
         echo $quiz_question;
+        echo "</br>";
+        echo date('Y-m-d', time());
+        echo "</br>";
+        echo $quiz_date;
         echo "</br>";
     }
