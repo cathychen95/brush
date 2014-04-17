@@ -60,14 +60,13 @@
         $number = $a[$x][0];
         $begin = strtotime($a[$x][1]);
         $end = strtotime($a[$x][2]);
-        $time_1 = strtotime($a[$x][3]);
+        //$time_1 = strtotime($a[$x][3]);
         $time_2 = strtotime($a[$x][4]);
 
         // forward timegap of 4:59 minutes
         $timegap = 259;
 
-        if (((($curr_time < ($time_1 + $timegap)) && ($curr_time > $time_1)) || 
-             (($curr_time < ($time_2 + $timegap)) && ($curr_time > $time_2))) &&
+        if (((($curr_time < ($time_2 + $timegap)) && ($curr_time > $time_2))) &&
              ($curr_time < $end && $curr_time > $begin)) {
 
             $sms = $client->account->messages->sendMessage(
@@ -79,7 +78,7 @@
                 $number,
  
                 // the sms body
-                "It is time to brush your teeth for 2 minutes. Weather today $currenttemp F $currentcondition, tomorrow $forecasttemp F $forecastcondition ."
+                "It is time to brush your teeth for 2 minutes. Weather now is $currenttemp F $currentcondition, tomorrow $forecasttemp F $forecastcondition ."
             );
 
             echo "Sent text to ";

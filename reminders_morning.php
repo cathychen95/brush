@@ -31,8 +31,8 @@
      
             $forecast = $item->xpath('yweather:forecast');
             // $forecastday = $forecast[1]['date'];
-            $forecasttemp = strval((floatval($forecast[1]['high']) + floatval($forecast[1]['low']))/2.0);
-            $forecastcondition = $forecast[1]['text'];
+            $forecasttemp = strval((floatval($forecast[0]['high']) + floatval($forecast[1]['low']))/2.0);
+            $forecastcondition = $forecast[0]['text'];
     }
 
     // create empty array
@@ -61,13 +61,12 @@
         $begin = strtotime($a[$x][1]);
         $end = strtotime($a[$x][2]);
         $time_1 = strtotime($a[$x][3]);
-        $time_2 = strtotime($a[$x][4]);
+       // $time_2 = strtotime($a[$x][4]);
 
         // forward timegap of 4:59 minutes
         $timegap = 259;
 
-        if (((($curr_time < ($time_1 + $timegap)) && ($curr_time > $time_1)) || 
-             (($curr_time < ($time_2 + $timegap)) && ($curr_time > $time_2))) &&
+        if ((($curr_time < ($time_1 + $timegap)) && ($curr_time > $time_1)) &&
              ($curr_time < $end && $curr_time > $begin)) {
 
             $sms = $client->account->messages->sendMessage(
@@ -79,7 +78,7 @@
                 $number,
  
                 // the sms body
-                "It is time to brush your teeth for 2 minutes. Weather today $currenttemp F $currentcondition, tomorrow $forecasttemp F $forecastcondition ."
+                "It is time to brush your teeth for 2 minutes. Weather now is $currenttemp F $currentcondition, weather today $forecasttemp F $forecastcondition ."
             );
 
             echo "Sent text to ";
