@@ -48,10 +48,23 @@
         // calculate start and end dates
         $today = date('ymd', time());
         $start = date('m/d/Y',strtotime($date1 . "+1 days"));
-        $end = date('m/d/Y',strtotime($date1 . "+28 days"));
+        $end = date('m/d/Y',strtotime($date1 . "+29 days"));
         $line = array ($this_num, $start, $end, $time1, $time2);
         fputcsv($handle, $line);
         fclose($handle);
+
+        // put into beam_numbers if BEAM SUBJECT
+        if (substr(strtoupper($_REQUEST['Body']), 0, 4) == "BEAM") {
+            // write response onto output csv file
+            $handle = fopen("beam_numbers.csv", "a");
+            // retrieve BEAM ID
+            // "BEAM" = [0:3], "-"" = [4], "xxxx" = [5:8]
+            // ID starts at index 5
+            $id = substr($_REQUEST['Body'], 5, 4);
+            $line = array ($this_num, $id);
+            fputcsv($handle, $line);
+            fclose($handle);
+        }
     }
     
     //--------------------------------------------------------
@@ -59,5 +72,5 @@
     echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 ?>
 <Response>
-    <Message>Thank you for your message. Your treatment period begins tomorrow.</Message>
+    <Message>Welcome to the study. Thank you for confirming receipt of the brush. We will now process payment for this study step and mail you a check. Your Upennbrush team.</Message>
 </Response>
