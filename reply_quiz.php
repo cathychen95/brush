@@ -7,8 +7,9 @@
     // get their first letter of answer, caps
     $ans = substr(strtoupper($_REQUEST['Body']), 0, 1);
 
-    // set output filename
-    $filedest = "quiz_answers_".date('yMd', time()).".csv";
+    // set input and output filenames
+    $filequiz = "quiz_question_".date('y-m-d', time()).".csv";
+    $filedest = "quiz_responses_".date('y-m-d', time()).".csv";
 
     // check if the person has answered this quiz before
     $answered = false;
@@ -36,7 +37,7 @@
     else {
         // person has not answered, so now validate response
         // create quiz from csv file
-        $quiz = new SplFileObject("current_quiz.csv");
+        $quiz = new SplFileObject($filequiz);
         $quiz->setFlags(SplFileObject::READ_CSV);
         $quiz->setCsvControl(';');
 
