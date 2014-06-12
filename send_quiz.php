@@ -11,9 +11,11 @@
 
     $filequiz = "quiz_question_".date('y-m-d', time()).".csv";
     // create quiz from csv file
-    $quiz = new SplFileObject($filequiz);
-    $quiz->setFlags(SplFileObject::READ_CSV);
-    $quiz->setCsvControl(';');
+    if ($filequiz) {
+        $quiz = new SplFileObject($filequiz);
+        $quiz->setFlags(SplFileObject::READ_CSV);
+        $quiz->setCsvControl(';');
+    }
 
     // retrieve quiz question and date
     $quiz_question = null;
@@ -55,18 +57,4 @@
         else {
             echo "Not sent to ".$number."\n";
         }
-
-        /*
-        echo "Sent quiz to ";
-        echo $number;
-        echo " to ";
-        echo date('d-m-y', $end);
-        echo " with question ";
-        echo $quiz_question;
-        echo "</br>";
-        echo date('Y-m-d', time());
-        echo "</br>";
-        echo $quiz_date;
-        echo "</br>";
-        */
     }

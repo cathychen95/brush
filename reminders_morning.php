@@ -56,48 +56,35 @@
 
     // cycle through array from csv and send message
     for($x=0;$x<$arrlength;$x++){
+        if (count($a[$x]) > 1) { // check for empty line
+            $number = $a[$x][0];
+            $begin = strtotime($a[$x][1]);
+            $end = strtotime($a[$x][2]);
+            $time_1 = strtotime($a[$x][3]);
 
-        $number = $a[$x][0];
-        $begin = strtotime($a[$x][1]);
-        $end = strtotime($a[$x][2]);
-        $time_1 = strtotime($a[$x][3]);
-       // $time_2 = strtotime($a[$x][4]);
+            // forward timegap of 4:59 minutes
+            $timegap = 299;
 
-        // forward timegap of 4:59 minutes
-        $timegap = 259;
+            if ((($curr_time < ($time_1 + $timegap)) && ($curr_time > $time_1)) &&
+                 ($curr_time < $end && $curr_time > $begin)) {
 
-        if ((($curr_time < ($time_1 + $timegap)) && ($curr_time > $time_1)) &&
-             ($curr_time < $end && $curr_time > $begin)) {
+                $sms = $client->account->messages->sendMessage(
+     
+                    // Twilio account's phone number
+                    "215-600-2133", 
+     
+                    // number receiving text
+                    $number,
+     
+                    // the sms body
+                    "It is time to brush your teeth for 2 minutes. Weather now is $currenttemp F $currentcondition, weather today $forecasttemp F $forecastcondition ."
+                );
 
-            $sms = $client->account->messages->sendMessage(
- 
-                // Twilio account's phone number
-                "215-600-2133", 
- 
-                // number receiving text
-                $number,
- 
-                // the sms body
-                "It is time to brush your teeth for 2 minutes. Weather now is $currenttemp F $currentcondition, weather today $forecasttemp F $forecastcondition ."
-            );
+                echo "\nSent morning reminder to ".$number;
+            }
 
-            echo "Sent text to ";
-            echo $number;
-            echo " from ";
-            echo date('d-m-y', $begin);
-            echo " to ";
-            echo date('d-m-y', $begin);
-            echo " at times ";
-            echo date('H:i', $time_1);   
-            echo " and ";
-            echo date('H:i', $time_2);
-            echo ".";
-            echo "</br>";
-        }
-
-        else {
-            echo "Text not sent to ";
-            echo $number;
-            echo "</br>";
+            else {
+                echo "\nDid not send text to ".$number;
+            }
         }
     }
