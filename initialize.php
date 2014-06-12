@@ -6,7 +6,7 @@
     Then the number will be inputted into the csv number file(s).
 
     Input: pre_numbers.csv
-    [10-digit number with '1' prefix], [morning reminder time], [night reminder time]
+    [4-digit brush ID], [morning reminder time], [night reminder time]
     
     Output: study_numbers.csv
     (all on same line)
@@ -19,13 +19,19 @@
 
     // get this person's number
     $this_num = substr($_REQUEST['From'], 1);
+    // get brush id, which consists of last four digits
+    $id = substr($_REQUEST['Body'], -4, 4);
     // get their first letter of answer, caps
     $ans = substr(strtoupper($_REQUEST['Body']), 0, 1);
 
-    $time1 = "TIME_ERROR";
-    $time2 = "TIME_ERROR";
+    //flag of whether the brush ID matches an entry in pre_numbers
+    $found = false;
+    //default message
+    $reply = "Sorry, but we were unable to match your brush ID. Please try again.";
     // check if this is an initialize message
     if ($ans == "B") {
+        $time1 = "TIME_ERROR";
+        $time2 = "TIME_ERROR";
         // check this person's morning/night times from the pre-study info csv
         $a = array();
         $file = fopen("pre_numbers.csv","r");
@@ -35,35 +41,57 @@
                 array_push($a, fgetcsv($file));
             } fclose($file);
             for($x=0; $x < count($a); $x++){
-                // phone number is first item in line
-                if ($a[$x][0] == $this_num) {
+                // in pre_numbers, brush ID is first item in each line
+                if ($a[$x][0] == $id) {
+                    $found = true;
                     // get morning and night times
                     $time1 = date("h:ia", strtotime($a[$x][1]));
                     $time2 = date("h:ia", strtotime($a[$x][2]));
                 }
             }
         }
-        // write response onto output csv file
-        $handle = fopen("study_numbers.csv", "a");
-        // calculate start and end dates
-        $today = date('ymd', time());
-        $start = date('m/d/Y',strtotime($date1 . "+1 days"));
-        $end = date('m/d/Y',strtotime($date1 . "+29 days"));
-        $line = array ($this_num, $start, $end, $time1, $time2);
-        fputcsv($handle, $line);
-        fclose($handle);
+        // now check if person is already in study_numbers
+        $duplicate = false;
+        $a = array();
+        $file = fopen($filedest,"r");
+        if ($file != null) {
+            while(! feof($file)) {
+                array_push($a, fgetcsv($file));
+            } fclose($file);
+            for($x=0; $x < count($a); $x++){
+                // brush ID is 6th field in the line
+                if ($a[$x][5] == $id) {
+                    // person answered this quiz already
+                    $duplicate = true;
+                }
+            }
+        }
 
-        // put into beam_numbers if BEAM SUBJECT
-        if (substr(strtoupper($_REQUEST['Body']), 0, 4) == "BEAM") {
+        //ERROR 1: person's id is not found
+        if (!$found) {
+            //send emails to alert of error
+            mail('thomlee@wharton.upenn.edu','ERROR: Brush ID not found for '.$this_num,
+                $this_num.' sent this message: '.$_REQUEST['Body'],
+                "From: thomlee@wharton.upenn.edu");
+            mail('barankay@wharton.upenn.edu','ERROR: Brush ID not found for '.$this_num,
+                $this_num.' sent this message: '.$_REQUEST['Body'],
+                "From: thomlee@wharton.upenn.edu");
+        }
+        //ERROR 2: 
+        //otherwise, write to file and reply
+        else {
             // write response onto output csv file
-            $handle = fopen("beam_numbers.csv", "a");
-            // retrieve BEAM ID
-            // "BEAM" = [0:3], "-"" = [4], "xxxx" = [5:8]
-            // ID starts at index 5
-            $id = substr($_REQUEST['Body'], 5, 4);
-            $line = array ($this_num, $id);
+            $handle = fopen("study_numbers.csv", "a");
+            // calculate start and end dates
+            $today = date('ymd', time());
+            $start = date('m/d/Y',strtotime($date1 . "+1 days"));
+            $end = date('m/d/Y',strtotime($date1 . "+84 days"));
+            $line = array ($this_num, $start, $end, $time1, $time2, $id);
+            fwrite($handle, "\r\n"); // new line for viewing in notepad
             fputcsv($handle, $line);
             fclose($handle);
+
+            $reply = "Welcome to the study. Thank you for confirming receipt of the brush. We will now process payment for this study step and mail you a check. Your Upennbrush team.";
         }
     }
     
@@ -72,5 +100,5 @@
     echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 ?>
 <Response>
-    <Message>Welcome to the study. Thank you for confirming receipt of the brush. We will now process payment for this study step and mail you a check. Your Upennbrush team.</Message>
+    <Message><?php echo $reply?></Message>
 </Response>

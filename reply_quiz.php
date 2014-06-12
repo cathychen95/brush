@@ -62,7 +62,7 @@
         $end = strtotime("11:59PM"); // midnight
         if ((time() < $end) && (date('ymd', time()) == $quiz_date)){
             if ($correct == 1) {
-                $reply = "Correct! You have earned $10.".$ans_exp;
+                $reply = "Correct! You have earned $7.".$ans_exp;
             }
             else {
                 $reply = "Sorry that is incorrect. Try again next time.".$ans_exp;

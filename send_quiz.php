@@ -38,8 +38,8 @@
     foreach($a as $v){
         $number = $v[0];
         $end = strtotime($v[1]);
-
-        if ((time() < $end) && (date('Y-m-d', time()) == $quiz_date)){
+    
+        if ((time() < $end)){
             $sms = $client->account->messages->
                 sendMessage(
                     "267-296-4099", 
@@ -53,7 +53,7 @@
             echo "\n";
         }
         else {
-            echo "Not sent to a number";
+            echo "Not sent to ".$number."\n";
         }
 
         /*
