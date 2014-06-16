@@ -24,10 +24,13 @@
     // get their first letter of answer, caps
     $ans = substr(strtoupper($_REQUEST['Body']), 0, 1);
 
+    //output file
+    $filedest = "study_numbers.csv";
+
     //flag of whether the brush ID matches an entry in pre_numbers
     $found = false;
     //default message
-    $reply = "Sorry, but we were unable to match your brush ID. Please try again.";
+    $reply = "";
     // check if this is an initialize message
     if ($ans == "B") {
         $time1 = "TIME_ERROR";
@@ -50,7 +53,7 @@
                 }
             }
         }
-        // now check if person is already in study_numbers
+        //now check if person is already in study_numbers
         $duplicate = false;
         $a = array();
         $file = fopen($filedest,"r");
@@ -69,6 +72,7 @@
 
         //ERROR 1: person's id is not found
         if (!$found) {
+            $reply = "Sorry, but we were unable to match your brush ID. Please try again.";
             //send emails to alert of error
             mail('thomlee@wharton.upenn.edu','ERROR: Brush ID not found for '.$this_num,
                 $this_num.' sent this message: '.$_REQUEST['Body'],
@@ -77,11 +81,20 @@
                 $this_num.' sent this message: '.$_REQUEST['Body'],
                 "From: thomlee@wharton.upenn.edu");
         }
-        //ERROR 2: 
+        //ERROR 2: duplicate
+        else if ($duplicate) {
+            $reply = "Sorry, this brush code has been registered before already.";
+            mail('thomlee@wharton.upenn.edu','ERROR: Duplicate Brush ID from '.$this_num,
+                $this_num.' sent this message: '.$_REQUEST['Body'],
+                "From: thomlee@wharton.upenn.edu");
+            mail('barankay@wharton.upenn.edu','ERROR: Duplicate Brush ID from '.$this_num,
+                $this_num.' sent this message: '.$_REQUEST['Body'],
+                "From: thomlee@wharton.upenn.edu");
+        }
         //otherwise, write to file and reply
         else {
             // write response onto output csv file
-            $handle = fopen("study_numbers.csv", "a");
+            $handle = fopen($filedest, "a");
             // calculate start and end dates
             $today = date('ymd', time());
             $start = date('m/d/Y',strtotime($date1 . "+1 days"));
@@ -93,6 +106,17 @@
 
             $reply = "Welcome to the study. Thank you for confirming receipt of the brush. We will now process payment for this study step and mail you a check. Your Upennbrush team.";
         }
+    }
+    //ERROR 3: text does not start with B
+    else {
+        $reply = "Sorry, the message you sent did not start with 'B'. Please try again.";
+        //send emails to alert of error
+        mail('thomlee@wharton.upenn.edu','ERROR: Text did not begin with B for '.$this_num,
+            $this_num.' sent this message: '.$_REQUEST['Body'],
+            "From: thomlee@wharton.upenn.edu");
+        mail('barankay@wharton.upenn.edu','ERROR: Text did not begin with B for '.$this_num,
+            $this_num.' sent this message: '.$_REQUEST['Body'],
+            "From: thomlee@wharton.upenn.edu");
     }
     
     //--------------------------------------------------------
