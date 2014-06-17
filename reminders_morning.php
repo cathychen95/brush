@@ -87,7 +87,7 @@ echo $curr_time < ($time_1 + $timegap);
 
             // is time within 5 minute interval before now?
             // is date within study period?
-            if ($curr_time < ($time_1 + $timegap) && $curr_time > $time_1 &&
+            if ($curr_time <= ($time_1 + $timegap) && $curr_time >= $time_1 &&
                 $curr_time < $end && $curr_time > $begin) {
 
 

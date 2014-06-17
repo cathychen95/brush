@@ -65,7 +65,7 @@
             // forward timegap of 4:59 minutes
             $timegap = 299;
 
-            if (((($curr_time < ($time_2 + $timegap)) && ($curr_time > $time_2))) &&
+            if (((($curr_time <= ($time_2 + $timegap)) && ($curr_time >= $time_2))) &&
                  ($curr_time < $end && $curr_time > $begin)) {
 
                 $sms = $client->account->messages->sendMessage(

@@ -20,7 +20,7 @@
     // get this person's number
     $this_num = substr($_REQUEST['From'], 1);
     // get brush id, which consists of last four digits
-    $id = substr($_REQUEST['Body'], -4, 4);
+    $id = substr(strtoupper($_REQUEST['Body']), -4, 4);
     // get their first letter of answer, caps
     $ans = substr(strtoupper($_REQUEST['Body']), 0, 1);
 
@@ -37,6 +37,7 @@
     if ($ans == "B") {
         $time1 = "TIME_ERROR";
         $time2 = "TIME_ERROR";
+        $end = "TIME_ERROR";
         // check this person's morning/night times from the pre-study info csv
         $a = array();
         $file = fopen("pre_numbers.csv","r");
@@ -103,6 +104,30 @@
             fclose($handle);
 
             $reply = "Welcome to the study. Thank you for confirming receipt of the brush. We will now process payment for this study step and mail you a check. Your Upennbrush team.";
+       
+            //now check whether this participant is in quiz group
+            $quiz = false;
+            $file = fopen("quiz_ids_list.csv", "r");
+            $a = array();
+            if ($file != null) {
+                while(! feof($file)) {
+                    array_push($a, fgetcsv($file));
+                } fclose($file);
+                for($x=0; $x < count($a); $x++){
+                    if ($a[$x][0] == $id) {
+                        $quiz = true;
+                    }
+                }
+            }
+            //write to quiz numbers
+            if ($quiz) {
+                $handle = fopen("quiz_numbers.csv", "a");
+                $line = array ($this_num, $end);
+                fputcsv($handle, $line);
+                fclose($handle);
+            }
+            
+
         }
     }
     //ERROR 3: text does not start with B
