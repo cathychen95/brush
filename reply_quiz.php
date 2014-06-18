@@ -8,7 +8,7 @@
     $ans = substr(strtoupper($_REQUEST['Body']), 0, 1);
 
     // set input and output filenames
-    $filequiz = "quiz_question_".date('y-m-d', time()).".csv";
+    $filequiz = "quiz_question_".date('y-m-d', time()).".csv"; //today's date
     $filedest = "quiz_responses_".date('y-m-d', time()).".csv";
 
     // check if the person has answered this quiz before
@@ -37,47 +37,35 @@
     else {
         // person has not answered, so now validate response
         // create quiz from csv file
-        $quiz = new SplFileObject($filequiz);
-        $quiz->setFlags(SplFileObject::READ_CSV);
-        $quiz->setCsvControl(';');
-
-        // retrieve quiz question and date
-        $quiz_ans = null;
-        $quiz_date = null;
-        $ans_exp = null; // this is the explanation of the answer
-        foreach ($quiz as $v) {
-            list ($q, $a, $d, $exp) = $v;
-            $quiz_ans = $a;
-            $quiz_date = date('ymd', strtotime($d));
-            $ans_exp = $exp;
-        }
-
-        $correct = 0; // flag of whether response matches quiz file
-        if ($quiz_ans == "T" && $ans == "T" ||
-                $quiz_ans == "F" && $ans == "F") {
-            $correct = 1;
-        }
+        $quiz = fopen($filequiz,"r");
 
         // check the answer was sent within the quiz date
-        $end = strtotime("11:59PM"); // midnight
-        if ((time() < $end) && (date('ymd', time()) == $quiz_date)){
-            if ($correct == 1) {
-                $reply = "Correct! You have earned $7.".$ans_exp;
+        if ($quiz == null) {
+            //file not found, so passed quiz day
+            $reply = "Sorry, you have passed the quiz reply period (ending at midnight).";
+        }
+        else {
+            $a = fgetcsv($quiz, 0, ";");
+            fclose($quiz);
+            $quiz_ans = substr($a[1], -1, 1); //allows for space after ;
+            $ans_exp = $a[2];
+
+            $correct = 0; // flag of correct or incorrect
+            if ($quiz_ans == $ans) {
+                    $reply = "Correct! You have earned $7.".$ans_exp;
+                    $correct = 1;
             }
             else {
                 $reply = "Sorry that is incorrect. Try again next time.".$ans_exp;
             }
-        }
-        else {
-            $reply = "Sorry you have passed the quiz reply period.";
-        }
 
-        // write response onto output csv file
-        $handle = fopen($filedest, "a");
-        // each line is phone number with 0/1 if in/correct
-        $line = array ($this_num, $correct);
-        fputcsv($handle, $line);
-        fclose($handle);
+            // write response onto output csv file
+            $handle = fopen($filedest, "a");
+            // each line is phone number with 0/1 if in/correct
+            $line = array ($this_num, $correct);
+            fputcsv($handle, $line);
+            fclose($handle);
+        }
     }
     //--------------------------------------------------------
     // now greet the sender

@@ -19,11 +19,9 @@
 
     // retrieve quiz question and date
     $quiz_question = null;
-    $quiz_date = null;
     foreach ($quiz as $v) {
-        list ($q, $a, $d) = $v;
+        list ($q, $a, $exp) = $v;
         $quiz_question = $q;
-        $quiz_date = date('Y-m-d', strtotime($d));
     }
 
     // get numbers and end time from .csv file
