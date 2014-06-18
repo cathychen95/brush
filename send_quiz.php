@@ -11,17 +11,15 @@
 
     $filequiz = "quiz_question_".date('y-m-d', time()).".csv";
     // create quiz from csv file
-    if ($filequiz) {
-        $quiz = new SplFileObject($filequiz);
-        $quiz->setFlags(SplFileObject::READ_CSV);
-        $quiz->setCsvControl(';');
-    }
+    $quiz = fopen($filequiz,"r");
 
-    // retrieve quiz question and date
-    $quiz_question = null;
-    foreach ($quiz as $v) {
-        list ($q, $a, $exp) = $v;
-        $quiz_question = $q;
+    if ($quiz == null) {
+        echo "No quiz file for today";    
+    }
+    else {
+        $a = fgetcsv($quiz, 0, ";");
+        fclose($quiz);
+        $quiz_question = $a[0];
     }
 
     // get numbers and end time from .csv file
