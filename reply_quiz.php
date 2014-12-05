@@ -47,15 +47,21 @@
         else {
             $a = fgetcsv($quiz, 0, ";");
             fclose($quiz);
+            // quiz_ans is correct answer in T or F
             $quiz_ans = substr($a[1], -1, 1); //allows for space after ;
+            // quiz_ans_yn is correct answer in Y or N
+            $quiz_ans_yn = "N";
+            if ($quiz_ans == "T") {
+                $quiz_ans_yn = "Y";
+            }
             $ans_exp = $a[2];
 
             $correct = 0; // flag of correct or incorrect
-            if ($quiz_ans == $ans) {
-                    $reply = "Correct! You have earned $7.".$ans_exp;
+            // accepts answer in either T/F or Y/N form
+            if ($quiz_ans == $ans || $quiz_ans_yn == $ans) {
+                    $reply = "Correct! You have earned $10.".$ans_exp;
                     $correct = 1;
-            }
-            else {
+            } else {
                 $reply = "Sorry that is incorrect. Try again next time.".$ans_exp;
             }
 
